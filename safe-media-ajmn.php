@@ -23,6 +23,7 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 require plugin_dir_path( __FILE__ ) . 'inc/class-media.php';
+require plugin_dir_path( __FILE__ ) . 'inc/class-helper.php';
 
 /**
  * Begins execution of the plugin.
