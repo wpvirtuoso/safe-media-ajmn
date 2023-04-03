@@ -66,9 +66,20 @@ class Media {
 	public function prevent_attachment_deletion( $delete, $attachment ) {
 
 		$posts = $this->helper->get_posts_by_featured_image( $attachment->ID );
+
+		if ( count( $posts ) > 0 ) {
+			return false;
+		}
+
 		$terms = $this->helper->get_terms_by_featured_image( $attachment->ID );
 
-		if ( count( $posts ) > 0 || count( $terms ) > 0 ) {
+		if ( count( $terms ) > 0 ) {
+			return false;
+		}
+
+		$content_based_posts = $this->helper->get_posts_by_content_media( $attachment->ID );
+
+		if ( count( $content_based_posts ) > 0 ) {
 			return false;
 		}
 

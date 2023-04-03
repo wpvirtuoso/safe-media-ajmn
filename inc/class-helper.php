@@ -47,12 +47,12 @@ class Helper {
 	 */
 	public function get_terms_by_featured_image( $attachment_id ) {
 
-		$term_ids = get_transient( 'linked_terms_by_featured_area' . $attachment_id );
+		$terms_ids = get_transient( 'linked_terms_by_featured_area' . $attachment_id );
 		if ( ! empty( $term_ids ) ) {
 			return $term_ids;
 		}
-		$term_ids = array();
-		$args     = array(
+		$terms_ids = array();
+		$args      = array(
 			'taxonomy'   => array( 'category', 'post_tag' ),
 			'hide_empty' => false,
 			'fields'     => 'ids',
@@ -65,11 +65,46 @@ class Helper {
 			),
 		);
 
-		$term_ids = get_terms( $args );
+		$terms_ids = get_terms( $args );
 
-		set_transient( 'linked_terms_by_feature_area' . $attachment_id, $term_ids, 24 * HOUR_IN_SECONDS );
+		set_transient( 'linked_terms_by_feature_area' . $attachment_id, $terms_ids, 24 * HOUR_IN_SECONDS );
 
-		return $term_ids;
+		return $terms_ids;
+	}
+
+	/**
+	 * Gets posts by searching attachment in content
+	 * @param integer $attachment_id attachment id
+	 */
+	public function get_posts_by_content_media( $attachment_id ) {
+
+		$posts_ids = get_transient( 'linked_posts_by_content_media' . $attachment_id );
+
+		if ( ! empty( $post_ids ) ) {
+			return $post_ids;
+		}
+
+		$attachment_meta = wp_get_attachment_metadata( $attachment_id );
+		$posts_ids       = array();
+
+		foreach ( $attachment_meta['sizes'] as $image_size ) {
+			$image_search_query = new WP_Query(
+				array(
+					's'              => $image_size['file'],
+					'post_type'      => 'any',
+					'fields'         => 'ids',
+					'no_found_rows'  => false,
+					'posts_per_page' => -1,
+					'cache_results'  => false,
+				)
+			);
+
+			$post_ids = array_merge( $image_search_query->posts, $post_ids );
+		}
+        
+		$posts_ids = array_unique( $post_ids );
+		set_transient( 'linked_posts_by_content_media' . $attachment_id, $posts_ids, 24 * HOUR_IN_SECONDS );
+		return $post_ids;
 	}
 
 }
