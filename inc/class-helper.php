@@ -11,10 +11,10 @@ class Helper {
 	 */
 	public function get_posts_by_featured_image( $attachment_id ) {
 
-		$post_ids = get_transient( 'linked_posts_by_featured_area_' . $attachment_id );
+		$posts_ids = get_transient( 'linked_posts_by_featured_area_' . $attachment_id );
 
-		if ( ! empty( $post_ids ) ) {
-			return $post_ids;
+		if ( ! empty( $posts_ids ) ) {
+			return $posts_ids;
 		}
 
 		$posts_ids = array();
@@ -36,7 +36,7 @@ class Helper {
 			$posts_ids = $query_posts->posts;
 		}
 
-		set_transient( 'linked_posts_by_featured_area' . $attachment_id, $posts_ids, 24 * HOUR_IN_SECONDS );
+		set_transient( 'linked_posts_by_featured_area_' . $attachment_id, $posts_ids, 0 );
 
 		return $posts_ids;
 	}
@@ -47,9 +47,9 @@ class Helper {
 	 */
 	public function get_terms_by_featured_image( $attachment_id ) {
 
-		$terms_ids = get_transient( 'linked_terms_by_featured_area' . $attachment_id );
-		if ( ! empty( $term_ids ) ) {
-			return $term_ids;
+		$terms_ids = get_transient( 'linked_terms_by_feature_area_' . $attachment_id );
+		if ( ! empty( $terms_ids ) ) {
+			return $terms_ids;
 		}
 		$terms_ids = array();
 		$args      = array(
@@ -67,7 +67,7 @@ class Helper {
 
 		$terms_ids = get_terms( $args );
 
-		set_transient( 'linked_terms_by_feature_area' . $attachment_id, $terms_ids, 24 * HOUR_IN_SECONDS );
+		set_transient( 'linked_terms_by_feature_area_' . $attachment_id, $terms_ids, 0 );
 
 		return $terms_ids;
 	}
@@ -78,10 +78,10 @@ class Helper {
 	 */
 	public function get_posts_by_content_media( $attachment_id ) {
 
-		$posts_ids = get_transient( 'linked_posts_by_content_media' . $attachment_id );
+		$posts_ids = get_transient( 'linked_posts_by_content_media_' . $attachment_id );
 
-		if ( ! empty( $post_ids ) ) {
-			return $post_ids;
+		if ( ! empty( $posts_ids ) ) {
+			return $posts_ids;
 		}
 
 		$attachment_meta = wp_get_attachment_metadata( $attachment_id );
@@ -99,12 +99,12 @@ class Helper {
 				)
 			);
 
-			$post_ids = array_merge( $image_search_query->posts, $post_ids );
+			$posts_ids = array_merge( $image_search_query->posts, $posts_ids );
 		}
-        
-		$posts_ids = array_unique( $post_ids );
-		set_transient( 'linked_posts_by_content_media' . $attachment_id, $posts_ids, 24 * HOUR_IN_SECONDS );
-		return $post_ids;
+
+		$posts_ids = array_unique( $posts_ids );
+		set_transient( 'linked_posts_by_content_media_' . $attachment_id, $posts_ids, 0 );
+		return $posts_ids;
 	}
 
 }
