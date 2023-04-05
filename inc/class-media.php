@@ -18,6 +18,8 @@ class Media {
 		$this->helper = new Helper();
 
 		add_filter( 'pre_delete_attachment', array( $this, 'prevent_attachment_deletion' ), 10, 2 );
+		add_filter( 'media_view_strings', array( $this, 'change_delete_attachment_error_message' ), 10, 2 );
+
 		add_action( 'cmb2_admin_init', array( $this, 'create_term_image_field' ) );
 
 		add_action( 'before_delete_post', array( $this, 'delete_post_attachment_transients' ), 10, 2 );
@@ -97,20 +99,24 @@ class Media {
 
 		$associated_objects = $this->get_associated_objects( $attachment->ID );
 
-		$posts = $associated_objects['posts'];
-
-		if ( count( $posts ) > 0 ) {
-			return false;
-		}
-		$terms = $associated_objects['terms'];
-
-		if ( count( $terms ) > 0 ) {
-			return false;
-		}
+		$posts               = $associated_objects['posts'];
+		$terms               = $associated_objects['terms'];
 		$content_based_posts = $associated_objects['content_based_posts'];
+		$unique_posts        = array_unique( array_merge( $posts, $content_based_posts ) );
 
-		if ( count( $content_based_posts ) > 0 ) {
-			return false;
+		$message = 'Error deleting, Item is being used in following objects:<br><ul>';
+		foreach ( $unique_posts as $post_id ) {
+			$post_edit_link = get_edit_post_link( $post_id );
+			$message       .= '<li><a href="' . $post_edit_link . '"> Post # ' . $post_id . '</a></li>';
+		}
+		foreach ( $terms as $term_id ) {
+			$term_edit_link = get_edit_term_link( $term_id );
+			$message       .= '<li><a href="' . $term_edit_link . '"> Term #	 ' . $term_id . '</a></li>';
+		}
+		$message .= '</ul>';
+
+		if ( count( $posts ) > 0 || count( $terms ) > 0 || count( $content_based_posts ) > 0 ) {
+			wp_die( esc_html( $message ) );
 		}
 
 		return $delete;
@@ -193,4 +199,14 @@ class Media {
 		echo '</div>';
 	}
 
+	/**
+	 * Changes alert notification content on attachment deletion
+	 * @param string $error error message
+	 * @param WP_POST $post Post object
+	 */
+	public function change_delete_attachment_error_message( $error, $post ) {
+
+		$error['errorDeleting'] = 'Could not delete the attachment. It is being used on some objects.';
+		return $error;
+	}
 }
