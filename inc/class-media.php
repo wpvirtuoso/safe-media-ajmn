@@ -30,25 +30,7 @@ class Media {
 		add_action( 'edit_terms', array( $this, 'delete_term_attachment_transients' ), 10, 3 );
 		add_action( 'pre_delete_term', array( $this, 'delete_term_attachment_transients' ), 10, 2 );
 
-		add_action( 'attachment_submitbox_misc_actions', array( $this, 'show_attachment_associated_objects' ), 10, 1 );
-	}
-
-	/**
-	 * Get associated objects of attachments.
-	 * @param integer $attachment integer
-	 */
-	public function get_associated_objects( $attachment_id ) {
-		$posts               = $this->helper->get_posts_by_featured_image( $attachment_id );
-		$terms               = $this->helper->get_terms_by_featured_image( $attachment_id );
-		$content_based_posts = $this->helper->get_posts_by_content_media( $attachment_id );
-
-		$associated_objects = array(
-			'posts'               => $posts,
-			'terms'               => $terms,
-			'content_based_posts' => $content_based_posts,
-		);
-
-		return $associated_objects;
+		add_action( 'attachment_submitbox_misc_actions', array( $this, 'show_attachment_associated_objects' ) );
 	}
 
 	/**
@@ -97,8 +79,7 @@ class Media {
 	 */
 	public function prevent_attachment_deletion( $delete, $attachment ) {
 
-		$associated_objects = $this->get_associated_objects( $attachment->ID );
-
+		$associated_objects  = $this->helper->get_associated_objects( $attachment->ID );
 		$posts               = $associated_objects['posts'];
 		$terms               = $associated_objects['terms'];
 		$content_based_posts = $associated_objects['content_based_posts'];
@@ -116,6 +97,11 @@ class Media {
 		$message .= '</ul>';
 
 		if ( count( $posts ) > 0 || count( $terms ) > 0 || count( $content_based_posts ) > 0 ) {
+
+			if ( defined( 'REST_REQUEST' ) ) {
+				return false;
+			}
+
 			wp_die( esc_html( $message ) );
 		}
 
@@ -160,7 +146,7 @@ class Media {
 	 */
 	public function show_attachment_associated_objects( $attachment ) {
 
-		$associated_objects  = $this->get_associated_objects( $attachment->ID );
+		$associated_objects  = $this->helper->get_associated_objects( $attachment->ID );
 		$posts               = $associated_objects['posts'];
 		$terms               = $associated_objects['terms'];
 		$content_based_posts = $associated_objects['content_based_posts'];
@@ -189,7 +175,7 @@ class Media {
 		}
 		foreach ( $terms as $term_id ) {
 
-			if ( 1 > $ctr ) {
+			if ( 1 === $ctr ) {
 				echo '<a href="' . esc_attr( get_edit_term_link( $term_id ) ) . '">' . esc_html( $term_id ) . '</a>';
 			} else {
 				echo ' ,<a href="' . esc_attr( get_edit_term_link( $term_id ) ) . '">' . esc_html( $term_id ) . '</a>';

@@ -24,13 +24,15 @@ if ( ! defined( 'WPINC' ) ) {
 
 require plugin_dir_path( __FILE__ ) . 'inc/class-media.php';
 require plugin_dir_path( __FILE__ ) . 'inc/class-helper.php';
+require plugin_dir_path( __FILE__ ) . 'inc/class-rest-api.php';
 
 /**
  * Begins execution of the plugin.
  */
 function init() {
 
-	$media = new Media();
+	$media    = new Media();
+	$rest_api = new Rest_Api();
 }
 
 init();

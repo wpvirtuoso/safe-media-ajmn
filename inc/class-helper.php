@@ -77,7 +77,7 @@ class Helper {
 	 * @param integer $attachment_id attachment id
 	 */
 	public function get_posts_by_content_media( $attachment_id ) {
-
+		
 		$posts_ids = get_transient( 'linked_posts_by_content_media_' . $attachment_id );
 
 		if ( ! empty( $posts_ids ) ) {
@@ -86,25 +86,44 @@ class Helper {
 
 		$attachment_meta = wp_get_attachment_metadata( $attachment_id );
 		$posts_ids       = array();
+		if ( isset( $attachment_meta['sizes'] ) ) {
 
-		foreach ( $attachment_meta['sizes'] as $image_size ) {
-			$image_search_query = new WP_Query(
-				array(
-					's'              => $image_size['file'],
-					'post_type'      => 'any',
-					'fields'         => 'ids',
-					'no_found_rows'  => false,
-					'posts_per_page' => -1,
-					'cache_results'  => false,
-				)
-			);
+			foreach ( $attachment_meta['sizes'] as $image_size ) {
+				$image_search_query = new WP_Query(
+					array(
+						's'              => $image_size['file'],
+						'post_type'      => 'any',
+						'fields'         => 'ids',
+						'no_found_rows'  => false,
+						'posts_per_page' => -1,
+						'cache_results'  => false,
+					)
+				);
 
-			$posts_ids = array_merge( $image_search_query->posts, $posts_ids );
+				$posts_ids = array_merge( $image_search_query->posts, $posts_ids );
+			}
 		}
-
 		$posts_ids = array_unique( $posts_ids );
 		set_transient( 'linked_posts_by_content_media_' . $attachment_id, $posts_ids, 0 );
 		return $posts_ids;
 	}
 
+	/**
+	 * Get associated objects of attachments.
+	 * @param integer $attachment integer
+	 */
+	public function get_associated_objects( $attachment_id ) {
+
+		$posts               = $this->get_posts_by_featured_image( $attachment_id );
+		$terms               = $this->get_terms_by_featured_image( $attachment_id );
+		$content_based_posts = $this->get_posts_by_content_media( $attachment_id );
+
+		$associated_objects = array(
+			'posts'               => $posts,
+			'terms'               => $terms,
+			'content_based_posts' => $content_based_posts,
+		);
+
+		return $associated_objects;
+	}
 }
