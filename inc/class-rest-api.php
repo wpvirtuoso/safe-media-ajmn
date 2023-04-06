@@ -23,26 +23,24 @@ class Rest_Api {
 	/**
 	 * Gets an item
 	 * @param WP_REST_Request $request Full data about the request.
-     * @return WP_Error|WP_REST_Response
+	 * @return WP_Error|WP_REST_Response
 	 */
 	public function get_item( $request ) {
 
 		$attachment_id = $request['id'];
-		$data = [];
+		$data          = array();
 		$post_type     = get_post_type( $attachment_id );
 		if ( 'attachment' === $post_type ) {
-			$associated_objects  = $this->helper->get_associated_objects( $attachment_id );
-			$posts               = $associated_objects['posts'];
-			$terms               = $associated_objects['terms'];
-			$content_based_posts = $associated_objects['content_based_posts'];
-			$unique_posts        = array_unique( array_merge( $posts, $content_based_posts ) );
-			$attachment_type     = get_post_mime_type( $attachment_id );
-			$attachment_date     = get_the_date( 'Y-m-d', $attachment_id );
-			$attachment_slug     = get_post_field( 'post_name', $attachment_id );
-			$attachment_url      = wp_get_attachment_image_url( $attachment_id, 'full' );
-			$attachment_alt      = get_post_meta( $attachment_id, '_wp_attachment_image_alt', true );
+			$associated_objects = $this->helper->get_associated_objects( $attachment_id );
+			$posts              = $associated_objects['posts'];
+			$terms              = $associated_objects['terms'];
+			$attachment_type    = get_post_mime_type( $attachment_id );
+			$attachment_date    = get_the_date( 'Y-m-d', $attachment_id );
+			$attachment_slug    = get_post_field( 'post_name', $attachment_id );
+			$attachment_url     = wp_get_attachment_image_url( $attachment_id, 'full' );
+			$attachment_alt     = get_post_meta( $attachment_id, '_wp_attachment_image_alt', true );
 
-			$data = array(
+			$data   = array(
 				'id'                 => $attachment_id,
 				'date'               => $attachment_date,
 				'slug'               => $attachment_slug,
@@ -50,40 +48,40 @@ class Rest_Api {
 				'link'               => $attachment_url,
 				'alt'                => $attachment_alt,
 				'associated_objects' => array(
-					'posts' => $unique_posts,
+					'posts' => $posts,
 					'terms' => $terms,
 				),
 			);
 			$status = 200;
 		} else {
 			$data['message'] = 'Image does not exist for given id.';
-			$status = 404;
+			$status          = 404;
 		}
 
 		$response = new WP_REST_Response( $data );
-		$response->set_status($status);
+		$response->set_status( $status );
 		return $response;
 	}
 
 	/**
 	 * Deletes an item
 	 * @param WP_REST_Request $request Full data about the request.
-     * @return WP_Error|WP_REST_Response
+	 * @return WP_Error|WP_REST_Response
 	 */
 	public function delete_item( $request ) {
 
-		$data = [];
-		$attachment_id = $request['id'];
+		$data            = array();
+		$attachment_id   = $request['id'];
 		$data['message'] = 'could not delete.';
-		$status = 405;
+		$status          = 405;
 
 		if ( wp_delete_attachment( $attachment_id ) ) {
 			$data['message'] = 'deleted.';
-			$status = 200;
+			$status          = 200;
 		}
-		
+
 		$response = new WP_REST_Response( $data );
-		$response->set_status($status);
+		$response->set_status( $status );
 		return $response;
 	}
 
@@ -97,13 +95,13 @@ class Rest_Api {
 			'/image/(?P<id>\d+)',
 			array(
 				array(
-				'methods'  => WP_REST_Server::READABLE,
-				'callback' => array( $this, 'get_item' ),
+					'methods'  => WP_REST_Server::READABLE,
+					'callback' => array( $this, 'get_item' ),
 				),
 				array(
 					'methods'  => WP_REST_Server::DELETABLE,
-					'callback'               => array( $this, 'delete_item' ),
-				)
+					'callback' => array( $this, 'delete_item' ),
+				),
 			)
 		);
 	}

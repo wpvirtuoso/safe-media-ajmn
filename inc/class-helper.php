@@ -35,9 +35,7 @@ class Helper {
 		if ( $query_posts->have_posts() ) {
 			$posts_ids = $query_posts->posts;
 		}
-
 		set_transient( 'linked_posts_by_featured_area_' . $attachment_id, $posts_ids, 0 );
-
 		return $posts_ids;
 	}
 
@@ -64,11 +62,8 @@ class Helper {
 				),
 			),
 		);
-
 		$terms_ids = get_terms( $args );
-
 		set_transient( 'linked_terms_by_feature_area_' . $attachment_id, $terms_ids, 0 );
-
 		return $terms_ids;
 	}
 
@@ -77,7 +72,7 @@ class Helper {
 	 * @param integer $attachment_id attachment id
 	 */
 	public function get_posts_by_content_media( $attachment_id ) {
-		
+
 		$posts_ids = get_transient( 'linked_posts_by_content_media_' . $attachment_id );
 
 		if ( ! empty( $posts_ids ) ) {
@@ -86,8 +81,7 @@ class Helper {
 
 		$attachment_meta = wp_get_attachment_metadata( $attachment_id );
 		$posts_ids       = array();
-		if ( isset( $attachment_meta['sizes'] ) ) {
-
+		if ( isset( $attachment_meta['sizes'] ) && ! empty( $attachment_meta['sizes'] ) ) {
 			foreach ( $attachment_meta['sizes'] as $image_size ) {
 				$image_search_query = new WP_Query(
 					array(
@@ -99,8 +93,7 @@ class Helper {
 						'cache_results'  => false,
 					)
 				);
-
-				$posts_ids = array_merge( $image_search_query->posts, $posts_ids );
+				$posts_ids          = array_merge( $image_search_query->posts, $posts_ids );
 			}
 		}
 		$posts_ids = array_unique( $posts_ids );
@@ -117,11 +110,11 @@ class Helper {
 		$posts               = $this->get_posts_by_featured_image( $attachment_id );
 		$terms               = $this->get_terms_by_featured_image( $attachment_id );
 		$content_based_posts = $this->get_posts_by_content_media( $attachment_id );
+		$unique_posts        = array_unique( array_merge( $posts, $content_based_posts ) );
 
 		$associated_objects = array(
-			'posts'               => $posts,
-			'terms'               => $terms,
-			'content_based_posts' => $content_based_posts,
+			'posts' => $unique_posts,
+			'terms' => $terms,
 		);
 
 		return $associated_objects;

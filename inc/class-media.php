@@ -79,32 +79,30 @@ class Media {
 	 */
 	public function prevent_attachment_deletion( $delete, $attachment ) {
 
-		$associated_objects  = $this->helper->get_associated_objects( $attachment->ID );
-		$posts               = $associated_objects['posts'];
-		$terms               = $associated_objects['terms'];
-		$content_based_posts = $associated_objects['content_based_posts'];
-		$unique_posts        = array_unique( array_merge( $posts, $content_based_posts ) );
+		$associated_objects = $this->helper->get_associated_objects( $attachment->ID );
+		$posts              = $associated_objects['posts'];
+		$terms              = $associated_objects['terms'];
 
-		$message = 'Error deleting, Item is being used in following objects:<br><ul>';
-		foreach ( $unique_posts as $post_id ) {
-			$post_edit_link = get_edit_post_link( $post_id );
-			$message       .= '<li><a href="' . $post_edit_link . '"> Post # ' . $post_id . '</a></li>';
-		}
-		foreach ( $terms as $term_id ) {
-			$term_edit_link = get_edit_term_link( $term_id );
-			$message       .= '<li><a href="' . $term_edit_link . '"> Term #	 ' . $term_id . '</a></li>';
-		}
-		$message .= '</ul>';
-
-		if ( count( $posts ) > 0 || count( $terms ) > 0 || count( $content_based_posts ) > 0 ) {
-
+		if ( ! empty( $posts ) || ! empty( $terms ) ) {
 			if ( defined( 'REST_REQUEST' ) ) {
 				return false;
 			}
-
-			wp_die( esc_html( $message ) );
+			$message = 'Error deleting, Item is being used in following objects:<br><ul>';
+			if ( ! empty( $posts ) ) {
+				foreach ( $posts as $post_id ) {
+					$post_edit_link = get_edit_post_link( $post_id );
+					$message       .= '<li><a href="' . $post_edit_link . '"> Post # ' . $post_id . '</a></li>';
+				}
+			}
+			if ( ! empty( $terms ) ) {
+				foreach ( $terms as $term_id ) {
+					$term_edit_link = get_edit_term_link( $term_id );
+					$message       .= '<li><a href="' . $term_edit_link . '"> Term #	 ' . $term_id . '</a></li>';
+				}
+			}
+			$message .= '</ul>';
+			wp_die( wp_kses_post( $message ) );
 		}
-
 		return $delete;
 	}
 
@@ -146,41 +144,40 @@ class Media {
 	 */
 	public function show_attachment_associated_objects( $attachment ) {
 
-		$associated_objects  = $this->helper->get_associated_objects( $attachment->ID );
-		$posts               = $associated_objects['posts'];
-		$terms               = $associated_objects['terms'];
-		$content_based_posts = $associated_objects['content_based_posts'];
-
-		$unique_posts = array_unique( array_merge( $posts, $content_based_posts ) );
+		$associated_objects = $this->helper->get_associated_objects( $attachment->ID );
+		$posts              = $associated_objects['posts'];
+		$terms              = $associated_objects['terms'];
 
 		echo '<div class="misc-pub-section misc-pub-uploadedto">Associated posts: ';
 		$ctr = 1;
-		if ( count( $unique_posts ) === 0 ) {
+		if ( empty( $posts ) ) {
 			echo 'None';
-		}
-		foreach ( $unique_posts as $post_id ) {
-			if ( 1 === $ctr ) {
-				echo '<a href="' . esc_attr( get_edit_post_link( $post_id ) ) . '">' . esc_html( $post_id ) . '</a>';
-			} else {
-				echo ' ,<a href="' . esc_attr( get_edit_post_link( $post_id ) ) . '">' . esc_html( $post_id ) . '</a>';
+		} else {
+			foreach ( $posts as $post_id ) {
+				if ( 1 === $ctr ) {
+					echo '<a href="' . esc_attr( get_edit_post_link( $post_id ) ) . '">' . esc_html( $post_id ) . '</a>';
+				} else {
+					echo ' ,<a href="' . esc_attr( get_edit_post_link( $post_id ) ) . '">' . esc_html( $post_id ) . '</a>';
+				}
+				$ctr++;
 			}
-			$ctr++;
 		}
 		echo '</div>';
 
 		echo '<div class="misc-pub-section misc-pub-uploadedto">Associated terms: ';
 		$ctr = 1;
-		if ( count( $terms ) === 0 ) {
+		if ( empty( $terms ) ) {
 			echo 'None';
-		}
-		foreach ( $terms as $term_id ) {
+		} else {
+			foreach ( $terms as $term_id ) {
 
-			if ( 1 === $ctr ) {
-				echo '<a href="' . esc_attr( get_edit_term_link( $term_id ) ) . '">' . esc_html( $term_id ) . '</a>';
-			} else {
-				echo ' ,<a href="' . esc_attr( get_edit_term_link( $term_id ) ) . '">' . esc_html( $term_id ) . '</a>';
+				if ( 1 === $ctr ) {
+					echo '<a href="' . esc_attr( get_edit_term_link( $term_id ) ) . '">' . esc_html( $term_id ) . '</a>';
+				} else {
+					echo ' ,<a href="' . esc_attr( get_edit_term_link( $term_id ) ) . '">' . esc_html( $term_id ) . '</a>';
+				}
+				$ctr++;
 			}
-			$ctr++;
 		}
 		echo '</div>';
 	}
