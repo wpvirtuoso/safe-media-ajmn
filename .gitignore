@@ -1,0 +1,9 @@
+vendor
+bin
+phpunit.xml.dist
+composer.lock
+.phpcs.xml.dist
+.phpunit.result.cache
+.travis.yml
+composer.json
+

@@ -72,11 +72,11 @@ class Rest_Api {
 
 		$data            = array();
 		$attachment_id   = $request['id'];
-		$data['message'] = 'could not delete.';
+		$data['message'] = 'Deletion Failed.';
 		$status          = 405;
 
 		if ( wp_delete_attachment( $attachment_id ) ) {
-			$data['message'] = 'deleted.';
+			$data['message'] = 'Deleted Successfully.';
 			$status          = 200;
 		}
 
@@ -91,16 +91,20 @@ class Rest_Api {
 	public function register_routes() {
 
 		register_rest_route(
-			'/assignment/v1',
+			'assignment/v1',
 			'/image/(?P<id>\d+)',
 			array(
 				array(
-					'methods'  => WP_REST_Server::READABLE,
-					'callback' => array( $this, 'get_item' ),
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_item' ),
+					'permission_callback' => '__return_true',
 				),
 				array(
-					'methods'  => WP_REST_Server::DELETABLE,
-					'callback' => array( $this, 'delete_item' ),
+					'methods'             => WP_REST_Server::DELETABLE,
+					'callback'            => array( $this, 'delete_item' ),
+					'permission_callback' => function () {
+						return current_user_can( 'manage_options' );
+					},
 				),
 			)
 		);

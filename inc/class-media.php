@@ -87,6 +87,9 @@ class Media {
 			if ( defined( 'REST_REQUEST' ) ) {
 				return false;
 			}
+			if ( defined( 'UNIT_TEST' ) ) {
+				return false;
+			}
 			$message = 'Error deleting, Item is being used in following objects:<br><ul>';
 			if ( ! empty( $posts ) ) {
 				foreach ( $posts as $post_id ) {
