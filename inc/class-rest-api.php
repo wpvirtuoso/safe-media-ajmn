@@ -54,7 +54,7 @@ class Rest_Api {
 			);
 			$status = 200;
 		} else {
-			$data['message'] = 'Image does not exist for given id.';
+			$data['message'] = __( 'Image does not exist for given id.', 'safe-media-ajmn' );
 			$status          = 404;
 		}
 
@@ -72,11 +72,11 @@ class Rest_Api {
 
 		$data            = array();
 		$attachment_id   = $request['id'];
-		$data['message'] = 'Deletion Failed.';
+		$data['message'] = __( 'Deletion Failed.', 'safe-media-ajmn' );
 		$status          = 405;
 
 		if ( wp_delete_attachment( $attachment_id ) ) {
-			$data['message'] = 'Deleted Successfully.';
+			$data['message'] = __( 'Deleted Successfully.', 'safe-media-ajmn' );
 			$status          = 200;
 		}
 

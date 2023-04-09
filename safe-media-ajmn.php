@@ -25,6 +25,7 @@ if ( ! defined( 'WPINC' ) ) {
 require plugin_dir_path( __FILE__ ) . 'inc/class-media.php';
 require plugin_dir_path( __FILE__ ) . 'inc/class-helper.php';
 require plugin_dir_path( __FILE__ ) . 'inc/class-rest-api.php';
+add_action( 'plugins_loaded', 'safe_media_load_textdomain' );
 
 /**
  * Begins execution of the plugin.
@@ -36,3 +37,10 @@ function init() {
 }
 
 init();
+
+/**
+ * Load plugin textdomain
+ */
+function safe_media_load_textdomain() {
+	load_plugin_textdomain( 'safe-media-ajmn', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+}

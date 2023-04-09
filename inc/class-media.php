@@ -48,14 +48,14 @@ class Media {
 
 		$term_media->add_field(
 			array(
-				'name'         => 'Featured Image',
+				'name'         => __( 'Featured Image', 'safe-media-ajmn' ),
 				'id'           => 'term_featured_image',
 				'type'         => 'file',
 				'options'      => array(
 					'url' => false,
 				),
 				'text'         => array(
-					'add_upload_file_text' => 'Upload Image',
+					'add_upload_file_text' => __( 'Upload Image', 'safe-media-ajmn' ),
 				),
 				'query_args'   => array(
 					'type' => array(
@@ -64,7 +64,7 @@ class Media {
 					),
 				),
 				'preview_size' => 'medium',
-				'desc'         => 'Upload a JPEG or PNG image.',
+				'desc'         => __( 'Upload a JPEG or PNG image.', 'safe-media-ajmn' ),
 				'attributes'   => array(
 					'accept' => 'image/jpeg,image/png',
 				),
@@ -90,7 +90,8 @@ class Media {
 			if ( defined( 'UNIT_TEST' ) ) {
 				return false;
 			}
-			$message = 'Error deleting, Item is being used in following objects:<br><ul>';
+			$message  = __( 'Error deleting, Item is being used in following objects:', 'safe-media-ajmn' );
+			$message .= '<br><ul>';
 			if ( ! empty( $posts ) ) {
 				foreach ( $posts as $post_id ) {
 					$post_edit_link = get_edit_post_link( $post_id );
@@ -151,7 +152,8 @@ class Media {
 		$posts              = $associated_objects['posts'];
 		$terms              = $associated_objects['terms'];
 
-		echo '<div class="misc-pub-section misc-pub-uploadedto">Associated posts: ';
+		echo '<div class="misc-pub-section misc-pub-uploadedto">';
+		esc_html_e( 'Associated posts:', 'safe-media-ajmn' );
 		$ctr = 1;
 		if ( empty( $posts ) ) {
 			echo 'None';
@@ -167,7 +169,8 @@ class Media {
 		}
 		echo '</div>';
 
-		echo '<div class="misc-pub-section misc-pub-uploadedto">Associated terms: ';
+		echo '<div class="misc-pub-section misc-pub-uploadedto">';
+		esc_html_e( 'Associated terms:', 'safe-media-ajmn' );
 		$ctr = 1;
 		if ( empty( $terms ) ) {
 			echo 'None';
@@ -192,7 +195,7 @@ class Media {
 	 */
 	public function change_delete_attachment_error_message( $error, $post ) {
 
-		$error['errorDeleting'] = 'Could not delete the attachment. It is being used on some objects.';
+		$error['errorDeleting'] = __( 'Could not delete the attachment. It is being used on some objects.', 'safe-media-ajmn' );
 		return $error;
 	}
 }
